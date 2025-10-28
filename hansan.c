@@ -1,5 +1,6 @@
 ﻿// hansan.c (한산 전쟁)
 #include <stdio.h>
+#include <stdlib.h> // exit() 함수 사용을 위한 헤더 추가
 
 #define CMD_RELOAD		0x01 // Bit 0 - 장전 준비	0000 0001
 #define CMD_FIRE		0x02 // Bit 1 - 발포 명령	0000 0010
@@ -8,6 +9,7 @@
 #define CMD_CRANE_FORM	0x10 // Bit 4 - 학익진 유지	0001 0000
 #define CMD_EVAC		0x20 // Bit 5 - 부상병 후송	0010 0000
 #define CMD_DAMAGE		0x40 // Bit 6 - 피해 경고	0100 0000
+#define CMD_HP			0x80 // Bit 7 - 생명 점수	1000 0000
 
 // Toggle 명령 ON
 unsigned char CommandOn(unsigned char fleet, unsigned char bit) {
@@ -38,6 +40,7 @@ void showStatus(unsigned char fleet) {
 	if (fleet & CMD_CRANE_FORM)	printf("학익진 진형 유지\n");
 	if (fleet & CMD_EVAC)		printf("부상병 후송\n");
 	if (fleet & CMD_DAMAGE)		printf("함선 피해 발생!\n");
+	if (fleet & CMD_HP)			printf("생명 점수!\n");
 	if (fleet == 0)				printf("모든 함선 대기 상태\n");
 }
 
@@ -54,8 +57,12 @@ void printMenu(void) {
 	printf("9. Inspection (총무공 점검)\n");
 	printf("10. Full Attack Mode (전면 돌격)\n");
 	printf("11. Exit\n");
+	printf("12. Toggle 생명 점수 (생명 점수)\n");
 	printf("명령 선택 (1~11): ");
 }
+
+// 생명 점수 계산 (부상병 후송 일때 +5점, 함선 피해 발생 경고 일때 -10점)
+int HP(unsigned char fleet, int hp) 
 
 int main(void) {
 	unsigned char fleet = 0;
@@ -150,6 +157,22 @@ int main(void) {
 		case 11:
 			printf("프로르램 종료햅니다.\n");
 			return 0;
+		case 12:
+			if (fleet & CMD_EVAC) {
+				hp += 5; // 부상병 후송 시 +5점
+			}
+			if (fleet & CMD_DAMAGE) {
+				hp -= 10; // 함선 피해 발생 경고 시 -10점
+			}
+			return hp;
+			break;
+		void checkGameOver(int hp) {
+				if (hp <= 0) {
+					printf("You are dead. Game over!\n");
+					return 0; // 게임 종료
+				}
+			}
+
 		default:
 			printf("잘못됭 입력입니다! (1~11)선택!\n");
 		} // switch()
